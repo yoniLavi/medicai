@@ -1,0 +1,158 @@
+{
+  "patients": [
+    {
+      "patient_id": 12345,
+      "name": "Brigid O'Sullivan",
+      "date_of_birth": "1951-08-15",
+      "created_at": "2024-01-15T10:30:00Z",
+      "last_updated": "2024-07-05T14:15:00Z",
+      "medical_history": [
+        "Type 2 Diabetes diagnosed 2019",
+        "Osteoarthritis in knees and hands",
+        "Mild hypertension",
+        "Cataracts developing in both eyes",
+        "Mother had Alzheimer's disease",
+        "Father died of heart disease and stroke",
+        "Husband died of heart attack in 2023"
+      ]
+    },
+    {
+      "patient_id": 12346,
+      "name": "Cian Murphy",
+      "date_of_birth": "2003-11-22",
+      "created_at": "2024-02-01T09:00:00Z",
+      "last_updated": "2024-07-05T11:30:00Z",
+      "medical_history": [
+        "Childhood asthma (outgrown by age 14)",
+        "Broke wrist at 16 playing hurling",
+        "Father has high blood pressure and depression",
+        "Mother has migraines and anxiety",
+        "Maternal grandmother breast cancer survivor"
+      ]
+    },
+    {
+      "patient_id": 12347,
+      "name": "Orla Flanagan",
+      "date_of_birth": "1990-05-10",
+      "created_at": "2024-03-10T16:45:00Z",
+      "last_updated": "2024-07-05T13:20:00Z",
+      "medical_history": [
+        "Vitamin D deficiency diagnosed 2023",
+        "Mother had breast cancer at 52",
+        "Father has high cholesterol and Type 2 diabetes",
+        "Brother has anxiety and depression",
+        "Family history of heart disease and diabetes"
+      ]
+    }
+  ],
+  "consultations": [
+    {
+      "consultation_id": "12345_20240701",
+      "patient_id": 12345,
+      "date": "2024-07-01",
+      "doctor": "Dr. Sarah Lynch",
+      "notes": "Patient reports sleep disturbances and weight loss since husband's death. Adjustment difficulties with move from Kerry to Dublin. Diabetes well controlled with Metformin. Discussed grief counseling resources.",
+      "created_at": "2024-07-01T14:30:00Z"
+    },
+    {
+      "consultation_id": "12345_20240515",
+      "patient_id": 12345,
+      "date": "2024-05-15",
+      "doctor": "Dr. Sarah Lynch",
+      "notes": "Follow-up for diabetes management. HbA1c stable at 7.1%. Knee pain worsening with Dublin weather. Referred to physiotherapy. Patient misses her old GP in Kerry.",
+      "created_at": "2024-05-15T11:00:00Z"
+    },
+    {
+      "consultation_id": "12346_20240620",
+      "patient_id": 12346,
+      "date": "2024-06-20",
+      "doctor": "Dr. Michael O'Brien",
+      "notes": "Student health check. Reports poor sleep due to gaming and irregular study schedule. Discussed sleep hygiene. Suspects seasonal depression but reluctant to discuss mental health. Referred to counseling services.",
+      "created_at": "2024-06-20T10:15:00Z"
+    },
+    {
+      "consultation_id": "12347_20240625",
+      "patient_id": 12347,
+      "date": "2024-06-25",
+      "doctor": "Dr. Sarah Lynch",
+      "notes": "Work stress affecting sleep and digestion. Irregular periods - discussed PCOS investigation. Vitamin D levels improved with supplementation. Recommended stress management techniques and ergonomic assessment.",
+      "created_at": "2024-06-25T15:45:00Z"
+    }
+  ],
+  "medications": [
+    {
+      "medication_id": "12345_metformin",
+      "patient_id": 12345,
+      "medication": "Metformin 500mg twice daily",
+      "prescribed_date": "2019-03-15",
+      "status": "active"
+    },
+    {
+      "medication_id": "12345_amlodipine",
+      "patient_id": 12345,
+      "medication": "Amlodipine 5mg daily",
+      "prescribed_date": "2020-08-10",
+      "status": "active"
+    },
+    {
+      "medication_id": "12347_vitamin_d",
+      "patient_id": 12347,
+      "medication": "Vitamin D3 1000 IU daily",
+      "prescribed_date": "2023-09-20",
+      "status": "active"
+    }
+  ],
+  "allergies": [
+    {
+      "allergy_id": "12345_nsaids",
+      "patient_id": 12345,
+      "allergen": "NSAIDs",
+      "severity": "moderate",
+      "notes": "Causes stomach upset and gastritis"
+    }
+  ],
+  "preferences": [
+    {
+      "preference_id": "12345_appointment_time",
+      "patient_id": 12345,
+      "category": "scheduling",
+      "preference": "Prefers morning appointments",
+      "notes": "Better energy levels in morning, difficulty with Dublin transport in evening"
+    },
+    {
+      "preference_id": "12345_communication",
+      "patient_id": 12345,
+      "category": "communication",
+      "preference": "Prefers phone calls over texts",
+      "notes": "Struggles with technology, daughter Siobhán helps with digital communication"
+    },
+    {
+      "preference_id": "12346_communication",
+      "patient_id": 12346,
+      "category": "communication",
+      "preference": "Prefers text/WhatsApp over phone calls",
+      "notes": "Digital native, comfortable with tech, wants quick responses"
+    },
+    {
+      "preference_id": "12346_explanation_style",
+      "patient_id": 12346,
+      "category": "consultation",
+      "preference": "Wants detailed explanations and evidence",
+      "notes": "Computer science student, likes to understand the 'why' behind medical advice"
+    },
+    {
+      "preference_id": "12347_efficiency",
+      "patient_id": 12347,
+      "category": "consultation",
+      "preference": "Appreciates direct, efficient communication",
+      "notes": "Professional communicator, time-conscious due to work demands"
+    },
+    {
+      "preference_id": "12347_digital_tools",
+      "patient_id": 12347,
+      "category": "technology",
+      "preference": "Comfortable with health apps and telemedicine",
+      "notes": "Uses fitness tracker, health apps, prefers online booking and results"
+    }
+  ]
+}
