@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech to Text - Real-time Transcription</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-microphone"></i> Speech to Text</h1>
+            <p>Real-time transcription powered by MediAI</p>
+        </header>
+
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="system-message">
+                    <i class="fas fa-info-circle"></i>
+                    Welcome! Click the microphone button to start recording and see your speech transcribed in real-time.
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="status-indicator" id="statusIndicator">
+                <span class="status-text" id="statusText">Ready</span>
+            </div>
+            
+            <button class="record-btn" id="recordBtn" title="Start Recording">
+                <i class="fas fa-microphone" id="recordIcon"></i>
+            </button>
+            
+            <button class="clear-btn" id="clearBtn" title="Clear Transcript">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+
+        <div class="audio-visualizer" id="audioVisualizer">
+            <div class="visualizer-bar"></div>
+            <div class="visualizer-bar"></div>
+            <div class="visualizer-bar"></div>
+            <div class="visualizer-bar"></div>
+            <div class="visualizer-bar"></div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
