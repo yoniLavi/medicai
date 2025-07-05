@@ -154,3 +154,56 @@ def test_consultation_notes_persist():
     test_notes = [c for c in consultations if c.get('doctor') == "Dr. Test Persistence"]
     assert len(test_notes) >= 1
     assert "Testing note persistence" in test_notes[0]['notes']
+
+def test_add_medication():
+    """Test adding a medication to patient memory"""
+    result = patient_memory.add_medication(12345, "Aspirin 100mg daily")
+    assert result == True
+    
+    # Verify it was added
+    profile = patient_memory.get_patient_profile(12345)
+    medications = profile['medications']
+    aspirin_meds = [m for m in medications if "Aspirin" in m.get('medication', '')]
+    assert len(aspirin_meds) >= 1
+
+def test_add_allergy():
+    """Test adding an allergy to patient memory"""
+    result = patient_memory.add_allergy(12345, "Pollen", "mild", "Seasonal hay fever")
+    assert result == True
+    
+    # Verify it was added
+    profile = patient_memory.get_patient_profile(12345)
+    allergies = profile['allergies']
+    pollen_allergies = [a for a in allergies if a.get('allergen') == "Pollen"]
+    assert len(pollen_allergies) >= 1
+    assert pollen_allergies[0]['severity'] == "mild"
+
+def test_add_preference():
+    """Test adding a preference to patient memory"""
+    result = patient_memory.add_preference(12345, "communication", "Email reminders preferred")
+    assert result == True
+    
+    # Verify it was added
+    profile = patient_memory.get_patient_profile(12345)
+    preferences = profile['preferences']
+    email_prefs = [p for p in preferences if "Email" in p.get('preference', '')]
+    assert len(email_prefs) >= 1
+
+def test_update_patient_memory_flexible():
+    """Test the flexible update_patient_memory tool"""
+    from medical_tools import update_patient_memory
+    
+    # Test medication update
+    result = update_patient_memory("12346", "medication", "Ibuprofen 400mg as needed")
+    assert result['status'] == 'success'
+    assert "medication" in result['message']
+    
+    # Test allergy update with severity
+    result = update_patient_memory("12346", "allergy", "Shellfish", "severe reaction")
+    assert result['status'] == 'success'
+    assert "allergy" in result['message']
+    
+    # Test preference update
+    result = update_patient_memory("12346", "preference", "Prefers video consultations")
+    assert result['status'] == 'success'
+    assert "preference" in result['message']

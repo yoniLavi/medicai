@@ -8,7 +8,7 @@ from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
 from google.genai import types
 
-from medical_tools import get_patient_brief, add_consultation_notes, list_recent_patients
+from medical_tools import get_patient_brief, add_consultation_notes, list_recent_patients, update_patient_memory
 
 # Load environment variables
 load_dotenv()
@@ -29,6 +29,7 @@ Your primary functions:
 1. **Patient Briefs**: Generate comprehensive pre-consultation summaries using get_patient_brief
 2. **Consultation Notes**: Help doctors add consultation notes using add_consultation_notes
 3. **Patient Management**: List and search recent patients using list_recent_patients
+4. **Update Patient Memory**: Flexibly add medications, allergies, preferences using update_patient_memory
 
 Guidelines:
 - Always prioritize patient privacy and confidentiality
@@ -57,9 +58,26 @@ Patient Listing Workflow:
 1. Use list_recent_patients to show recent patient activity
 2. Help doctors identify patients for follow-up or review
 
-Remember: You are assisting healthcare professionals in providing better patient care through organized information access.
+Memory Update Workflow:
+1. Listen for natural language requests to add medications, allergies, or preferences
+2. Use update_patient_memory with appropriate memory_type:
+   - For medications: "medication" (handles "prescribed", "started on", "taking", etc.)
+   - For allergies: "allergy" (handles "allergic to", "reacts to", "can't tolerate", etc.)
+   - For preferences: "preference" (handles "prefers", "likes", "wants", etc.)
+3. Extract key information from natural phrasing
+4. Include severity details for allergies when mentioned
+
+Examples of flexible phrasing you should handle:
+- "Patient is now taking metformin 500mg twice daily"
+- "Add penicillin allergy - severe reaction"
+- "She prefers afternoon appointments"
+- "Started on lisinopril today"
+- "He's allergic to latex"
+- "Note that patient likes detailed explanations"
+
+Remember: You are assisting healthcare professionals in providing better patient care through organized information access. Be flexible with how doctors phrase their updates.
 """,
-    tools=[get_patient_brief, add_consultation_notes, list_recent_patients],
+    tools=[get_patient_brief, add_consultation_notes, list_recent_patients, update_patient_memory],
 )
 
 # Session service for managing conversations
@@ -91,6 +109,7 @@ async def call_medical_agent(query: str, doctor_id: str, session_id: str):
     set_user_context(get_patient_brief, doctor_id)
     set_user_context(add_consultation_notes, doctor_id)
     set_user_context(list_recent_patients, doctor_id)
+    set_user_context(update_patient_memory, doctor_id)
 
     # Suppress warning messages from Google ADK about function calls
     stderr_capture = io.StringIO()

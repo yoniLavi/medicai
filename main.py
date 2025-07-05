@@ -58,6 +58,9 @@ async def interactive_medical_chat():
     print("- 'brief for patient 12345' or 'brief for Brigid O'Sullivan'")
     print("- 'list recent patients'")
     print("- 'update patient 12345: [consultation notes]'")
+    print("- 'patient is now taking metformin 500mg'")
+    print("- 'add penicillin allergy for patient 12345'")
+    print("- 'Brigid prefers morning appointments'")
     print("- Type 'quit' to exit")
     print("=" * 60)
 

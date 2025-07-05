@@ -102,6 +102,77 @@ class PatientMemory:
             print(f"[Memory System] Error adding consultation for patient {patient_id}: {e}")
             return False
 
+    def add_medication(self, patient_id: int, medication: str, prescribed_date: str = None, status: str = "active") -> bool:
+        """Add a new medication for a patient"""
+        try:
+            # Clean medication name for ID
+            med_name_clean = medication.lower().replace(' ', '_').replace('-', '_')[:20]
+            medication_id = f"{patient_id}_{med_name_clean}_{datetime.now().strftime('%Y%m%d')}"
+            
+            med_record = {
+                'medication_id': medication_id,
+                'patient_id': patient_id,
+                'medication': medication,
+                'prescribed_date': prescribed_date or datetime.now().strftime('%Y-%m-%d'),
+                'status': status,
+                'created_at': datetime.now().isoformat()
+            }
+            
+            self.collections['medications'].upsert(medication_id, med_record)
+            print(f"[Memory System] Added medication '{medication}' for patient {patient_id}")
+            return True
+            
+        except Exception as e:
+            print(f"[Memory System] Error adding medication for patient {patient_id}: {e}")
+            return False
+
+    def add_allergy(self, patient_id: int, allergen: str, severity: str = "moderate", notes: str = "") -> bool:
+        """Add a new allergy for a patient"""
+        try:
+            # Clean allergen name for ID
+            allergen_clean = allergen.lower().replace(' ', '_').replace('-', '_')[:20]
+            allergy_id = f"{patient_id}_{allergen_clean}"
+            
+            allergy_record = {
+                'allergy_id': allergy_id,
+                'patient_id': patient_id,
+                'allergen': allergen,
+                'severity': severity,
+                'notes': notes,
+                'created_at': datetime.now().isoformat()
+            }
+            
+            self.collections['allergies'].upsert(allergy_id, allergy_record)
+            print(f"[Memory System] Added allergy '{allergen}' for patient {patient_id}")
+            return True
+            
+        except Exception as e:
+            print(f"[Memory System] Error adding allergy for patient {patient_id}: {e}")
+            return False
+
+    def add_preference(self, patient_id: int, category: str, preference: str, notes: str = "") -> bool:
+        """Add a new preference for a patient"""
+        try:
+            # Create unique preference ID
+            pref_id = f"{patient_id}_{category}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            
+            preference_record = {
+                'preference_id': pref_id,
+                'patient_id': patient_id,
+                'category': category,
+                'preference': preference,
+                'notes': notes,
+                'created_at': datetime.now().isoformat()
+            }
+            
+            self.collections['preferences'].upsert(pref_id, preference_record)
+            print(f"[Memory System] Added preference for patient {patient_id}: {preference}")
+            return True
+            
+        except Exception as e:
+            print(f"[Memory System] Error adding preference for patient {patient_id}: {e}")
+            return False
+
     def list_recent_patients(self, limit: int = 10) -> list:
         """Get list of patients ordered by most recent consultation"""
         try:
