@@ -30,14 +30,16 @@ An AI-powered memory system that:
 - **Operations**: Add data, retrieve by collection, get full patient profile
 
 ### 2. AI Agent (MedicalAssistant)
-- **Model**: Gemini/Claude for generating briefs
+- **Model**: Gemini for generating briefs
 - **Tools**: Save patient info, retrieve patient data, generate summaries
 - **Prompts**: Specialized for medical context and privacy
+- **Status**: ⚠️ In development - PatientMemory and tools complete
 
 ### 3. CLI Interface
 - Interactive chat-based interface
 - Commands for different workflows
 - Session management per doctor
+- **Status**: ⚠️ In development - currently shows Couchbase connection test
 
 ## Usage
 
@@ -144,11 +146,42 @@ uv sync
 cp .env.example .env
 # Add your Couchbase and AI API credentials
 
+# Load mock data (optional)
+if false ; then 
+  uv run scripts/reset_couchbase_data.py
+fi
+
+# Run tests
+uv run pytest tests/test_medicai.py -v
+
 # Run
 uv run main.py
 ```
 
-## Demo Flow
+## Development Status
+
+### ✅ Completed
+- **Couchbase Integration**: Multi-collection schema with patient data
+- **PatientMemory Class**: Data retrieval and storage operations
+- **Medical Tools**: Patient brief generation, consultation notes, patient listing
+- **Mock Data**: Realistic patient personas (Brigid, Cian, Orla)
+- **Test Suite**: 15 comprehensive tests with full coverage
+
+### 🚧 In Progress
+- **AI Agent**: Gemini-based medical assistant (next task)
+- **CLI Interface**: Interactive chat interface (after AI agent)
+
+### 📋 Testing
+```bash
+# Run all tests
+uv run pytest tests/test_medicai.py -v
+
+# Test specific functionality
+from medical_tools import get_patient_brief
+result = get_patient_brief("12345")
+```
+
+## Demo Flow (Target)
 
 1. **Doctor starts consultation**: `brief for patient 12345`
 2. **AI generates summary**: Based on all historical data

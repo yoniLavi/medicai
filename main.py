@@ -1,12 +1,18 @@
 import os
-import time
+import asyncio
 from dotenv import load_dotenv
 from couchbase.cluster import Cluster
 from couchbase.options import ClusterOptions
 from couchbase.auth import PasswordAuthenticator
 
+from medical_agent import call_medical_agent, initialize_session
+
 # Load environment variables
 load_dotenv()
+
+# Global identifiers
+DOCTOR_ID = "Jones"
+SESSION_ID = "session_001"
 
 def test_couchbase_connection():
     """Test basic Couchbase connection and query"""
@@ -16,60 +22,97 @@ def test_couchbase_connection():
         username = os.getenv("COUCHBASE_USERNAME")
         password = os.getenv("COUCHBASE_PASSWORD")
         bucket_name = os.getenv("COUCHBASE_BUCKET")
-        
-        print(f"Connecting to: {conn_str}")
-        print(f"Username: {username}")
-        print(f"Bucket: {bucket_name}")
-        
+
         cluster = Cluster(conn_str, ClusterOptions(PasswordAuthenticator(username, password)))
-        
+
         # Test query first - this doesn't require bucket access
-        print("Testing cluster connection with SELECT 1...")
         result = cluster.query("SELECT 1 as test")
-        for row in result:
-            print(f"✅ Cluster connection successful: {row}")
-        
-        # Try to list available buckets via query
-        print("Checking available buckets...")
-        try:
-            buckets_result = cluster.query("SELECT name FROM system:buckets")
-            print("Available buckets:")
-            for row in buckets_result:
-                print(f"  - {row['name']}")
-        except Exception as e:
-            print(f"Could not list buckets: {e}")
-        
-        # Now try bucket access
-        print(f"Testing bucket access: {bucket_name}")
-        print("Waiting 3 seconds for bucket to be ready...")
-        time.sleep(3)
-        
+        list(result)  # Consume the result to test connection
+
+        # Test bucket access
         bucket = cluster.bucket(bucket_name)
         scope = bucket.scope("medicai")
-        
+
         # Test access to all required collections
         collections = ["patients", "consultations", "medications", "allergies", "preferences"]
         for collection_name in collections:
-            collection = scope.collection(collection_name)
-            print(f"✅ Connected to collection: {collection_name}")
-        
-        print("✅ Connected to Couchbase successfully!")
-        print(f"Connected to bucket: {bucket_name}")
-        print(f"Using scope: medicai with collections: {', '.join(collections)}")
-        
+            scope.collection(collection_name)
+
         return True
-        
+
     except Exception as e:
         print(f"❌ Couchbase connection failed: {e}")
         return False
 
-def main():
-    print("--- MedicAI - Testing Couchbase Connection ---")
-    
-    if test_couchbase_connection():
-        print("\n🎉 Ready to build the medical AI memory system!")
-    else:
-        print("\n⚠️  Please check your .env file and Couchbase setup")
+async def interactive_medical_chat():
+    """
+    Interactive chat session with the medical AI assistant
+    """
+    print("=" * 60)
+    print("🏥 MedicAI - Medical Assistant")
+    print("=" * 60)
+    print("Welcome, Doctor! I'm here to help you access patient information")
+    print("and manage consultation notes efficiently.")
+    print("")
+    print("Commands you can try:")
+    print("- 'brief for patient 12345' or 'brief for Brigid O'Sullivan'")
+    print("- 'list recent patients'")
+    print("- 'update patient 12345: [consultation notes]'")
+    print("- Type 'quit' to exit")
+    print("=" * 60)
+
+    while True:
+        try:
+            user_query = input("\n🔍 Doctor > ").strip()
+
+            if user_query.lower() in ["quit", "exit", "bye"]:
+                print("\n👋 Thank you for using MedicAI. Have a great day!")
+                break
+
+            if not user_query:
+                continue
+
+            response = await call_medical_agent(
+                query=user_query,
+                doctor_id=DOCTOR_ID,
+                session_id=SESSION_ID
+            )
+            print(f"\n<<< MedicAI: {response}")
+
+        except KeyboardInterrupt:
+            print("\n\n👋 Session ended. Thank you for using MedicAI!")
+            break
+        except EOFError:
+            print("\n\n👋 Session ended. Thank you for using MedicAI!")
+            break
+        except Exception as e:
+            print(f"\n❌ Error: {e}")
+            print("Please try again or type 'quit' to exit.")
+
+async def main():
+    """Main function to start MedicAI"""
+    print("🚀 Starting MedicAI...")
+
+    # Check Couchbase connection
+    print("🔍 Testing Couchbase connection...")
+    if not test_couchbase_connection():
+        print("\n⚠️  Please check your Couchbase configuration in .env file")
+        return
+    print("✅ Couchbase connection successful")
+
+    try:
+        # Initialize AI session
+        print("🤖 Initializing medical AI assistant...")
+        await initialize_session(DOCTOR_ID, SESSION_ID)
+        print("✅ Medical AI session initialized")
+
+        # Start interactive chat
+        await interactive_medical_chat()
+
+    except Exception as e:
+        print(f"❌ Failed to start medical assistant: {e}")
+        print("This is likely due to missing or invalid Google API credentials.")
+        print("Please check your .env file and ensure GOOGLE_API_KEY is configured correctly.")
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
