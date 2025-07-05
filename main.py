@@ -46,11 +46,16 @@ def test_couchbase_connection():
         
         bucket = cluster.bucket(bucket_name)
         scope = bucket.scope("medicai")
-        collection = scope.collection("patients")
+        
+        # Test access to all required collections
+        collections = ["patients", "consultations", "medications", "allergies", "preferences"]
+        for collection_name in collections:
+            collection = scope.collection(collection_name)
+            print(f"✅ Connected to collection: {collection_name}")
         
         print("✅ Connected to Couchbase successfully!")
         print(f"Connected to bucket: {bucket_name}")
-        print(f"Using scope: medicai, collection: patients")
+        print(f"Using scope: medicai with collections: {', '.join(collections)}")
         
         return True
         

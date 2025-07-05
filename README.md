@@ -20,14 +20,14 @@ An AI-powered memory system that:
 
 - Doctor CLI: Get brief, Add notes, List patients
 - AI Agent: Generate summaries, Save updates
-- Patient Memory: JSON storage, Categories, History
+- Patient Memory: Couchbase collections (patients, consultations, medications, allergies, preferences)
 
 ## Core Components
 
 ### 1. Patient Memory (PatientMemory)
-- **Storage**: JSON files per patient (data/patients/{patient_id}.json)
-- **Categories**: medical_history, preferences, consultations, medications, allergies
-- **Operations**: Add data, retrieve by category, get full profile
+- **Storage**: Couchbase collections in medicai scope
+- **Collections**: patients, consultations, medications, allergies, preferences
+- **Operations**: Add data, retrieve by collection, get full patient profile
 
 ### 2. AI Agent (MedicalAssistant)
 - **Model**: Gemini/Claude for generating briefs
@@ -46,8 +46,8 @@ An AI-powered memory system that:
 # Start interactive session
 uv run main.py
 
-> brief for John Smith
-Patient Brief for John Smith:
+> brief for patient 12345
+Patient Brief for John Smith (ID: 12345):
 - 45-year-old male with history of hypertension
 - Prefers morning appointments
 - Last visit: discussed medication compliance
@@ -57,50 +57,80 @@ Patient Brief for John Smith:
 
 ### Adding Consultation Notes
 ```bash
-> update John Smith: Patient reports improved blood pressure readings, wants to discuss exercise routine next visit
-Updated patient memory for John Smith
+> update patient 12345: Patient reports improved blood pressure readings, wants to discuss exercise routine next visit
+Updated patient memory for patient 12345
 ```
 
 ### Listing Patients
 ```bash
 > list patients
 Recent Patients:
-- John Smith (last seen: 2 days ago)
-- Sarah Johnson (last seen: 1 week ago)
-- Mike Davis (last seen: 2 weeks ago)
+- John Smith (ID: 12345, last seen: 2 days ago)
+- Sarah Johnson (ID: 12346, last seen: 1 week ago)
+- Mike Davis (ID: 12347, last seen: 2 weeks ago)
 ```
 
 ## Data Structure
 
+### Collections Schema
+
+**patients collection:**
 ```json
 {
-  "patient_id": "john_smith",
+  "patient_id": 12345,
   "name": "John Smith",
+  "date_of_birth": "1979-03-15",
   "created_at": "2024-01-15T10:30:00Z",
   "last_updated": "2024-01-20T14:15:00Z",
-  "categories": {
-    "medical_history": [
-      "Hypertension diagnosed 2019",
-      "Family history of diabetes"
-    ],
-    "preferences": [
-      "Prefers morning appointments",
-      "Likes detailed explanations"
-    ],
-    "consultations": [
-      {
-        "date": "2024-01-20",
-        "doctor": "Dr. Williams",
-        "notes": "Discussed medication compliance"
-      }
-    ],
-    "medications": [
-      "Lisinopril 10mg daily"
-    ],
-    "allergies": [
-      "Penicillin"
-    ]
-  }
+  "medical_history": [
+    "Hypertension diagnosed 2019",
+    "Family history of diabetes"
+  ]
+}
+```
+
+**consultations collection:**
+```json
+{
+  "consultation_id": "12345_20240120",
+  "patient_id": 12345,
+  "date": "2024-01-20",
+  "doctor": "Dr. Williams",
+  "notes": "Discussed medication compliance",
+  "created_at": "2024-01-20T14:15:00Z"
+}
+```
+
+**medications collection:**
+```json
+{
+  "medication_id": "12345_lisinopril",
+  "patient_id": 12345,
+  "medication": "Lisinopril 10mg daily",
+  "prescribed_date": "2024-01-01",
+  "status": "active"
+}
+```
+
+**allergies collection:**
+```json
+{
+  "allergy_id": "12345_penicillin",
+  "patient_id": 12345,
+  "allergen": "Penicillin",
+  "severity": "severe",
+  "notes": "Causes rash and breathing difficulties"
+}
+```
+
+**preferences collection:**
+```json
+{
+  "preference_id": "12345_scheduling",
+  "patient_id": 12345,
+  "category": "scheduling",
+  "preference": "Prefers morning appointments",
+  "notes": "Works best with 9-11am slots"
 }
 ```
 
@@ -120,10 +150,10 @@ uv run main.py
 
 ## Demo Flow
 
-1. **Doctor starts consultation**: `brief for John Smith`
+1. **Doctor starts consultation**: `brief for patient 12345`
 2. **AI generates summary**: Based on all historical data
 3. **Doctor conducts appointment**: Using the context provided
-4. **Doctor adds notes**: `update John Smith: [consultation notes]`
+4. **Doctor adds notes**: `update patient 12345: [consultation notes]`
 5. **Memory updated**: Ready for next doctor/visit
 
 ## Future Enhancements
