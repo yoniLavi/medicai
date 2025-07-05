@@ -43,7 +43,7 @@ const CalendarView = ({ patients, onPatientSelect }: CalendarViewProps) => {
 
   return (
     <div className="flex gap-6 h-full">
-      <div className="w-1/3">
+      <div className="w-2/5">
         <Card>
           <CardHeader>
             <CardTitle>Calendar</CardTitle>
@@ -59,7 +59,7 @@ const CalendarView = ({ patients, onPatientSelect }: CalendarViewProps) => {
         </Card>
       </div>
       
-      <div className="flex-1">
+      <div className="w-3/5">
         <Card className="h-full">
           <CardHeader>
             <CardTitle>

@@ -122,7 +122,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-6 py-4">
@@ -153,10 +153,10 @@ const Index = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-8">
-        <div className="flex gap-6 h-[calc(100vh-200px)]">
-          {/* Main Content Area - 3/4 width */}
-          <div className="flex-1 w-3/4">
+      <div className="container mx-auto px-6 py-8 flex-1">
+        <div className="flex gap-6 h-full">
+          {/* Main Content Area - 3/5 width */}
+          <div className="flex-1 w-3/5">
             <Tabs defaultValue="list" className="h-full flex flex-col">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="list">Patient List</TabsTrigger>
@@ -182,8 +182,8 @@ const Index = () => {
             </Tabs>
           </div>
 
-          {/* AI Assistant - 1/4 width */}
-          <div className="w-1/4 min-w-80">
+          {/* AI Assistant - 2/5 width */}
+          <div className="w-2/5 min-w-80 h-full">
             <AIAssistant 
               selectedPatient={selectedPatient}
               patients={patientsData}

@@ -31,6 +31,7 @@ const AIAssistant = ({ selectedPatient, patients }: AIAssistantProps) => {
   ]);
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showQuickQuestions, setShowQuickQuestions] = useState(true);
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
@@ -45,6 +46,11 @@ const AIAssistant = ({ selectedPatient, patients }: AIAssistantProps) => {
 
     setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
+    
+    // Hide quick questions after first use
+    if (showQuickQuestions) {
+      setShowQuickQuestions(false);
+    }
 
     try {
       // Call real AI API
@@ -80,14 +86,15 @@ const AIAssistant = ({ selectedPatient, patients }: AIAssistantProps) => {
   };
 
   const quickQuestions = [
-    "What should I know about their cultural background?",
-    "Any medication concerns?",
-    "Family support situation?",
-    "Communication preferences?"
+    "brief for patient 12345",
+    "list recent patients", 
+    "patient is now taking metformin 500mg",
+    "add penicillin allergy for patient 12345",
+    "Brigid prefers morning appointments"
   ];
 
   return (
-    <Card className="h-full flex flex-col">
+    <Card className="h-full flex flex-col bg-white border-gray-200 shadow-sm min-h-0">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-3">
           <Avatar className="h-10 w-10">
@@ -113,7 +120,7 @@ const AIAssistant = ({ selectedPatient, patients }: AIAssistantProps) => {
           </div>
         )}
 
-        <ScrollArea className="flex-1 pr-4">
+        <ScrollArea className="flex-1 pr-4 min-h-0">
           <div className="space-y-4">
             {messages.map((message) => (
               <div
@@ -141,24 +148,26 @@ const AIAssistant = ({ selectedPatient, patients }: AIAssistantProps) => {
         </ScrollArea>
 
         <div className="space-y-3">
-          <div className="grid grid-cols-1 gap-2">
-            {quickQuestions.map((question, index) => (
-              <Button
-                key={index}
-                variant="outline"
-                size="sm"
-                onClick={() => handleQuickQuestion(question)}
-                className="text-xs justify-start h-8"
-                disabled={isLoading}
-              >
-                {question}
-              </Button>
-            ))}
-          </div>
+          {showQuickQuestions && (
+            <div className="grid grid-cols-1 gap-2">
+              {quickQuestions.map((question, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleQuickQuestion(question)}
+                  className="text-xs justify-start h-8"
+                  disabled={isLoading}
+                >
+                  {question}
+                </Button>
+              ))}
+            </div>
+          )}
 
           <div className="flex gap-2">
             <Input
-              placeholder="Ask about your patients..."
+              placeholder="e.g. 'brief for patient 12345' or 'list recent patients'"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
