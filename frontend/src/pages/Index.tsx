@@ -1,75 +1,58 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Calendar, Clock, Users, FileText, Plus, AlertCircle } from "lucide-react";
+import { Search, Calendar, Clock, Users, FileText, Plus, AlertCircle, Loader2 } from "lucide-react";
 import PatientProfile from "@/components/PatientProfile";
 import ConsultationPrep from "@/components/ConsultationPrep";
 import ActiveSession from "@/components/ActiveSession";
 import PatientList from "@/components/PatientList";
 import CalendarView from "@/components/CalendarView";
 import AIAssistant from "@/components/AIAssistant";
+import { getRecentPatients, testConnection } from "@/lib/api";
 
 const Index = () => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [activeView, setActiveView] = useState("dashboard");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Updated Irish personas data
-  const patientsData = [
-    {
-      id: 1,
-      name: "Brigid O'Sullivan",
-      age: 72,
-      time: "10:30 AM",
-      type: "Follow-up",
-      lastSeen: "3 months ago",
-      priority: "high",
-      concerns: ["Diabetes management", "Sleep disturbances since move", "Memory concerns"],
-      initials: "BO",
-      location: "Blackrock, Dublin (Recently from Kerry)",
-      background: "Retired teacher, widowed, moved from Kerry 18 months ago",
-      communicationStyle: "Traditional, polite, may understate symptoms",
-      conditions: ["Type 2 Diabetes", "Osteoarthritis", "Mild hypertension"],
-      culturalNotes: "Uses Kerry expressions, prefers phone calls, very deferential to doctors"
-    },
-    {
-      id: 2,
-      name: "Cian Murphy",
-      age: 20,
-      time: "11:15 AM",
-      type: "Student health check",
-      lastSeen: "6 months ago",
-      priority: "medium",
-      concerns: ["Sleep issues", "Academic stress", "Poor diet"],
-      initials: "CM",
-      location: "UCD Student, originally from Sligo",
-      background: "Computer Science student, first in family to attend university",
-      communicationStyle: "Tech-savvy, informal, asks lots of questions",
-      conditions: ["Seasonal depression (suspected)", "Eye strain", "Social anxiety"],
-      culturalNotes: "Uses contemporary slang, prefers digital communication, may mask mental health concerns"
-    },
-    {
-      id: 3,
-      name: "Orla Flanagan",
-      age: 33,
-      time: "2:00 PM",
-      type: "Routine check-up",
-      lastSeen: "4 months ago",
-      priority: "low",
-      concerns: ["Work stress", "Hormonal issues", "Preventive screening"],
-      initials: "OF",
-      location: "Ranelagh, Dublin (Originally from Cork)",
-      background: "Senior UX Designer, health-conscious professional",
-      communicationStyle: "Direct, well-informed, appreciates efficiency",
-      conditions: ["Chronic stress", "Irregular periods", "Vitamin D deficiency"],
-      culturalNotes: "Professional communicator, uses health apps, proactive about wellness"
-    }
-  ];
+  // Fetch real patient data
+  const { data: patientsResponse, isLoading: isPatientsLoading, error: patientsError } = useQuery({
+    queryKey: ['patients'],
+    queryFn: getRecentPatients,
+    retry: 1,
+    retryDelay: 1000,
+  });
+
+  // Debug logging
+  console.log('🔍 Query state:', {
+    isLoading: isPatientsLoading,
+    error: patientsError,
+    data: patientsResponse,
+  });
+
+  // Transform API data to match existing component interface
+  const patientsData = patientsResponse?.recent_patients?.map(patient => ({
+    id: patient.patient_id,
+    name: patient.name,
+    age: 0, // Will be filled from patient profile
+    time: "TBD", // Will be set when scheduling
+    type: "Consultation",
+    lastSeen: patient.last_seen || "Unknown",
+    priority: "medium", // Default priority
+    concerns: [], // Will be filled from patient profile
+    initials: patient.name.split(' ').map(n => n[0]).join(''),
+    location: "Ireland",
+    background: "Patient information available in profile",
+    communicationStyle: "Professional",
+    conditions: [],
+    culturalNotes: "Individual preferences available in profile"
+  })) || [];
 
   const handlePatientSelect = (patient) => {
     setSelectedPatient(patient);
@@ -86,6 +69,18 @@ const Index = () => {
     setActiveView("session");
   };
 
+  const handleTestConnection = async () => {
+    console.log('🧪 Testing API connection...');
+    try {
+      const result = await testConnection();
+      console.log('✅ Connection test successful:', result);
+      alert('API connection successful! Check console for details.');
+    } catch (error) {
+      console.error('❌ Connection test failed:', error);
+      alert('API connection failed! Check console for details.');
+    }
+  };
+
   if (activeView === "profile" && selectedPatient) {
     return <PatientProfile patient={selectedPatient} onBack={() => setActiveView("dashboard")} />;
   }
@@ -96,6 +91,34 @@ const Index = () => {
 
   if (activeView === "session" && selectedPatient) {
     return <ActiveSession patient={selectedPatient} onBack={() => setActiveView("dashboard")} />;
+  }
+
+  // Loading state
+  if (isPatientsLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading patients...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (patientsError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-lg font-semibold mb-2">Failed to load patients</h2>
+          <p className="text-gray-600 mb-4">Please make sure the backend server is running.</p>
+          <Button onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -118,6 +141,9 @@ const Index = () => {
                   className="pl-10 w-64"
                 />
               </div>
+              <Button onClick={handleTestConnection} variant="outline" className="mr-2">
+                🧪 Test API
+              </Button>
               <Button onClick={() => handleStartSession(null)} className="bg-blue-600 hover:bg-blue-700">
                 <Plus className="h-4 w-4 mr-2" />
                 New Session

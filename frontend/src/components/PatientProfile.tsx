@@ -4,7 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ArrowLeft, Calendar, FileText, Heart, AlertTriangle, User, Phone, Mail, MapPin } from "lucide-react";
+import { ArrowLeft, Calendar, FileText, Heart, AlertTriangle, User, Phone, Mail, MapPin, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getPatientProfile } from "@/lib/api";
 
 interface PatientProfileProps {
   patient: any;
@@ -12,49 +14,55 @@ interface PatientProfileProps {
 }
 
 const PatientProfile = ({ patient, onBack }: PatientProfileProps) => {
-  // Mock comprehensive patient data
+  // Fetch real patient data
+  const { data: profileResponse, isLoading, error } = useQuery({
+    queryKey: ['patient-profile', patient.id],
+    queryFn: () => getPatientProfile(patient.id),
+    enabled: !!patient.id,
+  });
+
+  const patientProfile = profileResponse?.patient_brief;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading patient profile...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !patientProfile) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-lg font-semibold mb-2">Failed to load patient profile</h2>
+          <Button onClick={onBack}>Back to Dashboard</Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Use real patient data
   const patientDetails = {
     ...patient,
-    dateOfBirth: "15th March 1962",
-    address: "12 O'Connell Street, Cork",
-    phone: "+353 21 123 4567",
-    email: "mary.osullivan@email.ie",
-    emergencyContact: "John O'Sullivan (Husband) - +353 21 987 6543",
-    conditions: ["Type 2 Diabetes", "Hypertension", "High Cholesterol"],
-    allergies: ["Penicillin", "Shellfish"],
-    medications: [
-      { name: "Metformin", dosage: "500mg twice daily", prescribed: "Dr. O'Brien" },
-      { name: "Lisinopril", dosage: "10mg daily", prescribed: "Dr. Murphy" },
-      { name: "Atorvastatin", dosage: "20mg evening", prescribed: "Dr. O'Brien" }
-    ],
-    consultationHistory: [
-      {
-        date: "2nd January 2024",
-        doctor: "Dr. Murphy",
-        reason: "Blood pressure review",
-        outcome: "Medication adjusted, follow-up in 6 weeks",
-        notes: "Patient mentioned feeling dizzy in mornings. BP readings improved."
-      },
-      {
-        date: "15th November 2023",
-        doctor: "Dr. O'Brien",
-        reason: "Diabetes management",
-        outcome: "HbA1c improved to 7.2%, continue current regimen",
-        notes: "Patient very compliant with diet changes. Pleased with weight loss of 3kg."
-      },
-      {
-        date: "20th September 2023",
-        doctor: "Dr. Fitzgerald",
-        reason: "Annual check-up",
-        outcome: "Overall health stable, routine bloods ordered",
-        notes: "Patient expressed concerns about memory - reassured, no clinical signs of concern."
-      }
-    ],
+    dateOfBirth: patientProfile.patient_info.date_of_birth || "Not specified",
+    address: "Address on file",
+    phone: "Phone on file", 
+    email: "Email on file",
+    emergencyContact: "Emergency contact on file",
+    conditions: patientProfile.patient_info.medical_history || [],
+    allergies: patientProfile.allergies?.map(a => a.allergen) || [],
+    medications: patientProfile.medications || [],
+    consultationHistory: patientProfile.consultations || [],
     preferences: {
-      communication: "Prefers phone calls over emails",
-      appointments: "Morning appointments work best",
-      treatment: "Conservative approach, prefers lifestyle changes over medication increases",
-      concerns: "Worried about becoming a burden on family"
+      communication: "Available in preferences",
+      appointments: "Available in preferences", 
+      treatment: "Available in preferences",
+      concerns: "Available in preferences"
     }
   };
 

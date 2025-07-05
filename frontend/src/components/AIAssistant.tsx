@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { MessageCircle, Send, Heart, Lightbulb } from "lucide-react";
+import { MessageCircle, Send, Heart, Lightbulb, Loader2 } from "lucide-react";
+import { chatWithAI } from "@/lib/api";
 
 interface Message {
   id: string;
@@ -23,15 +24,16 @@ const AIAssistant = ({ selectedPatient, patients }: AIAssistantProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello there! I'm Áine, your healthcare memory assistant. I'm here to help ye understand yer patients better and prepare for consultations. How can I help ye today?",
+      text: "Hello there! I'm your healthcare memory assistant. I'm here to help you understand your patients better and prepare for consultations. How can I help you today?",
       sender: 'assistant',
       timestamp: new Date()
     }
   ]);
   const [inputMessage, setInputMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSendMessage = () => {
-    if (!inputMessage.trim()) return;
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || isLoading) return;
 
     // Add user message
     const userMessage: Message = {
@@ -42,51 +44,39 @@ const AIAssistant = ({ selectedPatient, patients }: AIAssistantProps) => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    setIsLoading(true);
 
-    // Generate AI response based on context
-    const response = generateResponse(inputMessage, selectedPatient);
-    
-    setTimeout(() => {
+    try {
+      // Call real AI API
+      const response = await chatWithAI(inputMessage, selectedPatient?.id);
+      
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: response,
+        text: response.response,
         sender: 'assistant',
         timestamp: new Date()
       };
       setMessages(prev => [...prev, aiMessage]);
-    }, 1000);
+    } catch (error) {
+      console.error('AI chat error:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: "Sorry, I'm having trouble connecting right now. Please try again.",
+        sender: 'assistant',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
 
     setInputMessage("");
   };
 
-  const generateResponse = (query: string, patient: any) => {
-    const lowerQuery = query.toLowerCase();
-    
-    if (!patient) {
-      if (lowerQuery.includes('brigid') || lowerQuery.includes("o'sullivan")) {
-        return "Ah, Brigid O'Sullivan! She's a lovely woman from Kerry who moved to Dublin after her husband passed. She's 72, has diabetes that's well-managed, but she's struggling with the move and might be having some memory concerns. She's very traditional in her approach - calls me 'Doctor' even though I'm just an assistant! She tends to downplay her symptoms, so ye might need to gently probe a bit more. Would ye like to know about her medication routine or her family situation?";
-      } else if (lowerQuery.includes('cian') || lowerQuery.includes('murphy')) {
-        return "Cian Murphy is a grand lad - 20 years old, studying Computer Science at UCD. He's from Sligo originally and this is his first time living away from home. He's tech-savvy and will ask ye loads of questions, but he might not be fully honest about mental health concerns - there's still that stigma for young fellas, ye know? He's living on Pot Noodles and staying up too late gaming. His sleep pattern is all over the place!";
-      } else if (lowerQuery.includes('orla') || lowerQuery.includes('flanagan')) {
-        return "Orla Flanagan is a successful UX designer, 33, originally from Cork but living in Ranelagh now. She's very health-conscious and well-informed - she'll come prepared with questions and might have already researched her symptoms online. She's dealing with work stress and some hormonal issues. She appreciates efficiency and direct communication. Fair play to her for being so proactive about her health!";
-      } else {
-        return "I'm here to help ye with any of yer patients! Would ye like to know about Brigid O'Sullivan (the 72-year-old teacher from Kerry), Cian Murphy (the UCD student from Sligo), or Orla Flanagan (the UX designer from Cork)? Or is there something specific about patient care ye'd like to discuss?";
-      }
-    }
-
-    // Patient-specific responses
-    if (patient.name === "Brigid O'Sullivan") {
-      if (lowerQuery.includes('medication') || lowerQuery.includes('diabetes')) {
-        return "Brigid is very good with her medications - takes them religiously at the same times every day. She uses a weekly pill organizer that her daughter Siobhán set up for her. Her diabetes has been well-controlled since 2019 with Metformin. However, since the move to Dublin and losing Paddy, she's lost some weight due to grief. Ye might want to check if her eating routine has changed, as that could affect her blood sugar management.";
-      } else if (lowerQuery.includes('family') || lowerQuery.includes('support')) {
-        return "Brigid has four children - Siobhán (48, a nurse in Tallaght Hospital) is the one who lives nearby and helps her. The others are scattered: Declan emigrated to Perth, Mairead teaches in Cork, and Seán took over the family farm in Kerry. Siobhán is very supportive but might be getting a bit stressed trying to balance work and caring for her mam. Brigid worries about being a burden on her.";
-      } else if (lowerQuery.includes('kerry') || lowerQuery.includes('move') || lowerQuery.includes('dublin')) {
-        return "The move from Kerry to Dublin has been 'a fierce big change' for Brigid. She misses the community in Kenmare where she taught for 45 years and knew everyone. Dublin feels too noisy and fast-paced for her. This geographical transition is definitely affecting her mental health - she's having sleep disturbances and some social isolation. She might benefit from connecting with local parish activities or Kerry associations in Dublin.";
-      }
-    }
-
-    // Default helpful response
-    return "That's a great question! Based on what I know about this patient, I'd suggest looking at their cultural background and communication style. Remember, each person brings their own story and way of expressing themselves. Would ye like me to elaborate on any particular aspect of their care?";
+  const handleQuickQuestion = async (question: string) => {
+    setInputMessage(question);
+    // Auto-send the question
+    setTimeout(() => handleSendMessage(), 100);
   };
 
   const quickQuestions = [
@@ -157,8 +147,9 @@ const AIAssistant = ({ selectedPatient, patients }: AIAssistantProps) => {
                 key={index}
                 variant="outline"
                 size="sm"
-                onClick={() => setInputMessage(question)}
+                onClick={() => handleQuickQuestion(question)}
                 className="text-xs justify-start h-8"
+                disabled={isLoading}
               >
                 {question}
               </Button>
@@ -167,14 +158,19 @@ const AIAssistant = ({ selectedPatient, patients }: AIAssistantProps) => {
 
           <div className="flex gap-2">
             <Input
-              placeholder="Ask Áine about your patients..."
+              placeholder="Ask about your patients..."
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
               className="flex-1"
+              disabled={isLoading}
             />
-            <Button onClick={handleSendMessage} size="sm">
-              <Send className="h-4 w-4" />
+            <Button onClick={handleSendMessage} size="sm" disabled={isLoading || !inputMessage.trim()}>
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
             </Button>
           </div>
         </div>

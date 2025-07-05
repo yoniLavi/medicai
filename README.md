@@ -166,6 +166,7 @@ Recent Patients:
 
 ## Setup
 
+### Backend Setup
 ```bash
 # Install dependencies
 uv sync
@@ -181,10 +182,46 @@ fi
 
 # Run tests
 uv run pytest backend/tests/test_medicai.py -v
+```
 
-# Run the CLI
+### Frontend Setup  
+```bash
+# Install frontend dependencies
+cd frontend
+npm install
+# or
+bun install
+```
+
+### Running the Full Stack
+
+#### Option 1: Run both services separately (recommended for development)
+
+**Terminal 1 - Backend:**
+```bash
+# From project root
+uv run uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+```
+
+**Terminal 2 - Frontend:**
+```bash
+# From frontend directory
+cd frontend
+npm run dev
+# or
+bun dev
+```
+
+#### Option 2: CLI Only
+```bash
+# Run the CLI interface only
 uv run backend/cli.py
 ```
+
+### Access the Application
+- **Frontend Web App**: http://localhost:8080
+- **Backend API**: http://localhost:8000
+- **API Documentation**: http://localhost:8000/docs
 
 ## Development Status
 
@@ -194,11 +231,16 @@ uv run backend/cli.py
 - **Medical Tools**: Patient brief generation, consultation notes, patient listing, flexible memory updates
 - **AI Agent**: Gemini 2.0 Flash-based medical assistant with natural language processing
 - **CLI Interface**: Interactive chat interface with session management
+- **FastAPI Backend**: RESTful API with automatic documentation
+- **React Frontend**: Modern web interface with real-time AI chat
+- **Full-Stack Integration**: Frontend + Backend + Database working together
 - **Mock Data**: Realistic patient personas (Brigid, Cian, Orla)
-- **Test Suite**: 15 comprehensive tests with full coverage
+- **Test Suite**: 19 comprehensive tests with full coverage
 
-### 🎯 Ready for Next Phase
-- **Web Frontend Integration**: System ready for web interface development
+### 🎯 Next Phase Ideas
+- **Authentication & Authorization**: User login and role-based access
+- **Real-time Updates**: WebSocket integration for live collaboration
+- **Enhanced UI**: More sophisticated patient management features
 
 ### 📋 Testing
 ```bash
