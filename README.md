@@ -30,16 +30,16 @@ An AI-powered memory system that:
 - **Operations**: Add data, retrieve by collection, get full patient profile
 
 ### 2. AI Agent (MedicalAssistant)
-- **Model**: Gemini for generating briefs
-- **Tools**: Save patient info, retrieve patient data, generate summaries
+- **Model**: Gemini 2.0 Flash for generating briefs and natural language processing
+- **Tools**: Patient brief generation, consultation notes, memory updates, patient listing
 - **Prompts**: Specialized for medical context and privacy
-- **Status**: ⚠️ In development - PatientMemory and tools complete
+- **Features**: Natural language processing for flexible memory updates
 
 ### 3. CLI Interface
 - Interactive chat-based interface
-- Commands for different workflows
+- Natural language commands for all workflows
 - Session management per doctor
-- **Status**: ⚠️ In development - currently shows Couchbase connection test
+- Support for Ctrl+D exit and error handling
 
 ## Usage
 
@@ -61,6 +61,14 @@ Patient Brief for John Smith (ID: 12345):
 ```bash
 > update patient 12345: Patient reports improved blood pressure readings, wants to discuss exercise routine next visit
 Updated patient memory for patient 12345
+```
+
+### Updating Patient Memory
+```bash
+> Brigid is now taking metformin 500mg twice daily
+> add penicillin allergy for patient 12345
+> patient prefers morning appointments
+> Cian is allergic to latex - severe reaction
 ```
 
 ### Listing Patients
@@ -163,13 +171,14 @@ uv run main.py
 ### ✅ Completed
 - **Couchbase Integration**: Multi-collection schema with patient data
 - **PatientMemory Class**: Data retrieval and storage operations
-- **Medical Tools**: Patient brief generation, consultation notes, patient listing
+- **Medical Tools**: Patient brief generation, consultation notes, patient listing, flexible memory updates
+- **AI Agent**: Gemini 2.0 Flash-based medical assistant with natural language processing
+- **CLI Interface**: Interactive chat interface with session management
 - **Mock Data**: Realistic patient personas (Brigid, Cian, Orla)
 - **Test Suite**: 15 comprehensive tests with full coverage
 
-### 🚧 In Progress
-- **AI Agent**: Gemini-based medical assistant (next task)
-- **CLI Interface**: Interactive chat interface (after AI agent)
+### 🎯 Ready for Next Phase
+- **Web Frontend Integration**: System ready for web interface development
 
 ### 📋 Testing
 ```bash
