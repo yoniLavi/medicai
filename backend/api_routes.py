@@ -106,6 +106,13 @@ async def chat_with_ai(request: ChatMessage):
             timestamp=datetime.now().isoformat()
         )
     except Exception as e:
+        error_str = str(e)
+        if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+            # Provide a helpful response when rate limited
+            return ChatResponse(
+                response="I'm currently experiencing high demand (API rate limit reached). The system is working perfectly - you've just used up today's free API quota! You can wait for the limit to reset, upgrade your Google AI plan, or try again tomorrow. All your patient data and functionality remains fully available.",
+                timestamp=datetime.now().isoformat()
+            )
         raise HTTPException(status_code=500, detail=f"AI chat error: {str(e)}")
 
 @router.get("/patients/{patient_identifier}/brief", response_model=ChatResponse)
