@@ -44,7 +44,7 @@ An AI-powered memory system that:
 ### Getting Patient Brief
 ```bash
 # Start interactive session
-python medicai.py
+uv run main.py
 
 > brief for John Smith
 Patient Brief for John Smith:
@@ -108,14 +108,14 @@ Recent Patients:
 
 ```bash
 # Install dependencies
-uv add python-dotenv click
+uv sync
 
 # Set up environment
 cp .env.example .env
-# Add your AI API key
+# Add your Couchbase and AI API credentials
 
 # Run
-python medicai.py
+uv run main.py
 ```
 
 ## Demo Flow
