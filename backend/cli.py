@@ -14,6 +14,7 @@ load_dotenv()
 DOCTOR_ID = "Jones"
 SESSION_ID = "session_001"
 
+
 def test_couchbase_connection():
     """Test basic Couchbase connection and query"""
     try:
@@ -23,7 +24,9 @@ def test_couchbase_connection():
         password = os.getenv("COUCHBASE_PASSWORD")
         bucket_name = os.getenv("COUCHBASE_BUCKET")
 
-        cluster = Cluster(conn_str, ClusterOptions(PasswordAuthenticator(username, password)))
+        cluster = Cluster(
+            conn_str, ClusterOptions(PasswordAuthenticator(username, password))
+        )
 
         # Test query first - this doesn't require bucket access
         result = cluster.query("SELECT 1 as test")
@@ -34,7 +37,13 @@ def test_couchbase_connection():
         scope = bucket.scope("medicai")
 
         # Test access to all required collections
-        collections = ["patients", "consultations", "medications", "allergies", "preferences"]
+        collections = [
+            "patients",
+            "consultations",
+            "medications",
+            "allergies",
+            "preferences",
+        ]
         for collection_name in collections:
             scope.collection(collection_name)
 
@@ -43,6 +52,7 @@ def test_couchbase_connection():
     except Exception as e:
         print(f"❌ Couchbase connection failed: {e}")
         return False
+
 
 async def interactive_medical_chat():
     """
@@ -76,9 +86,7 @@ async def interactive_medical_chat():
                 continue
 
             response = await call_medical_agent(
-                query=user_query,
-                doctor_id=DOCTOR_ID,
-                session_id=SESSION_ID
+                query=user_query, doctor_id=DOCTOR_ID, session_id=SESSION_ID
             )
             print(f"\n<<< MedicAI: {response}")
 
@@ -91,6 +99,7 @@ async def interactive_medical_chat():
         except Exception as e:
             print(f"\n❌ Error: {e}")
             print("Please try again or type 'quit' to exit.")
+
 
 async def main():
     """Main function to start MedicAI"""
@@ -115,7 +124,10 @@ async def main():
     except Exception as e:
         print(f"❌ Failed to start medical assistant: {e}")
         print("This is likely due to missing or invalid Google API credentials.")
-        print("Please check your .env file and ensure GOOGLE_API_KEY is configured correctly.")
+        print(
+            "Please check your .env file and ensure GOOGLE_API_KEY is configured correctly."
+        )
+
 
 if __name__ == "__main__":
     asyncio.run(main())

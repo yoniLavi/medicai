@@ -18,9 +18,29 @@ An AI-powered memory system that:
 
 **Doctor CLI** -> **AI Agent** -> **Patient Memory**
 
-- Doctor CLI: Get brief, Add notes, List patients
+- Doctor CLI: Interactive CLI in `backend/cli.py`
 - AI Agent: Generate summaries, Save updates
 - Patient Memory: Couchbase collections (patients, consultations, medications, allergies, preferences)
+
+## Project Structure
+
+```
+medicai/
+├── backend/
+│   ├── cli.py              # Main CLI interface
+│   ├── medical_agent.py    # AI agent with Gemini 2.0
+│   ├── medical_tools.py    # Tool functions for AI agent
+│   ├── patient_memory.py   # Couchbase data layer
+│   ├── scripts/
+│   │   ├── mock_data/
+│   │   │   └── patients.json
+│   │   └── reset_couchbase_data.py
+│   └── tests/
+│       └── test_medicai.py
+├── README.md
+├── pyproject.toml
+└── uv.lock
+```
 
 ## Core Components
 
@@ -46,7 +66,7 @@ An AI-powered memory system that:
 ### Getting Patient Brief
 ```bash
 # Start interactive session
-uv run main.py
+uv run backend/cli.py
 
 > brief for patient 12345
 Patient Brief for John Smith (ID: 12345):
@@ -156,14 +176,14 @@ cp .env.example .env
 
 # Load mock data (optional)
 if false ; then 
-  uv run scripts/reset_couchbase_data.py
+  uv run backend/scripts/reset_couchbase_data.py
 fi
 
 # Run tests
-uv run pytest tests/test_medicai.py -v
+uv run pytest backend/tests/test_medicai.py -v
 
-# Run
-uv run main.py
+# Run the CLI
+uv run backend/cli.py
 ```
 
 ## Development Status
@@ -183,11 +203,10 @@ uv run main.py
 ### 📋 Testing
 ```bash
 # Run all tests
-uv run pytest tests/test_medicai.py -v
+uv run pytest backend/tests/test_medicai.py -v
 
 # Test specific functionality
-from medical_tools import get_patient_brief
-result = get_patient_brief("12345")
+cd backend && uv run python -c "from medical_tools import get_patient_brief; result = get_patient_brief('12345'); print(result)"
 ```
 
 ## Demo Flow (Target)

@@ -1,4 +1,3 @@
-import sys
 import io
 from contextlib import redirect_stderr
 from dotenv import load_dotenv
@@ -8,14 +7,21 @@ from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
 from google.genai import types
 
-from medical_tools import get_patient_brief, add_consultation_notes, list_recent_patients, update_patient_memory
+from medical_tools import (
+    get_patient_brief,
+    add_consultation_notes,
+    list_recent_patients,
+    update_patient_memory,
+)
 
 # Load environment variables
 load_dotenv()
 
+
 def set_user_context(func, user_id: str):
     """Set user context for tool functions (similar to travel example)"""
     setattr(func, "user_id", user_id)
+
 
 # Create the medical AI agent
 medical_agent = Agent(
@@ -77,7 +83,12 @@ Examples of flexible phrasing you should handle:
 
 Remember: You are assisting healthcare professionals in providing better patient care through organized information access. Be flexible with how doctors phrase their updates.
 """,
-    tools=[get_patient_brief, add_consultation_notes, list_recent_patients, update_patient_memory],
+    tools=[
+        get_patient_brief,
+        add_consultation_notes,
+        list_recent_patients,
+        update_patient_memory,
+    ],
 )
 
 # Session service for managing conversations
@@ -90,6 +101,7 @@ runner = Runner(
     app_name=APP_NAME,
     session_service=session_service,
 )
+
 
 async def call_medical_agent(query: str, doctor_id: str, session_id: str):
     """
@@ -120,15 +132,20 @@ async def call_medical_agent(query: str, doctor_id: str, session_id: str):
         ):
             if event.is_final_response() and event.content and event.content.parts:
                 # Extract only text parts to avoid function call warnings
-                text_parts = [part.text for part in event.content.parts if hasattr(part, 'text') and part.text]
+                text_parts = [
+                    part.text
+                    for part in event.content.parts
+                    if hasattr(part, "text") and part.text
+                ]
                 if text_parts:
-                    return ''.join(text_parts)
+                    return "".join(text_parts)
                 else:
                     # Fallback to first part if no text parts found
                     final_response = event.content.parts[0].text
                     return final_response
 
     return "No response received from medical assistant."
+
 
 async def initialize_session(doctor_id: str, session_id: str):
     """Initialize the session service"""
